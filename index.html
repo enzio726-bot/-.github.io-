@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>纳瑞维医生合作看板 - 视觉 5.0 终极版</title>
+<style>
+:root {
+  --primary: #7F77DD;
+  --primary-hover: #6A61C9;
+  --primary-bg: #F5F4FF;
+  --bg-main: #FBFBFC;
+  --bg-input: #F2F2F7;
+  --text-main: #1D1D1F;
+  --text-sub: #86868B;
+  --border-light: #E5E5EA;
+  --shadow-soft: 0 8px 30px rgba(0,0,0,0.04);
+  --radius-pill: 22px;
+  --radius-card: 24px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro SC", "SF Pro Display", "PingFang SC", sans-serif; background: var(--bg-main); padding: 40px 20px; color: var(--text-main); }
+.page { max-width: 1550px; margin: 0 auto; }
+
+/* 头部设计 */
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding: 0 10px; }
+h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.8px; }
+
+.q-switcher { display: flex; gap: 4px; background: #E3E3E8; padding: 3px; border-radius: 12px; }
+.q-btn { padding: 8px 22px; border-radius: 9px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; color: #515154; background: transparent; transition: all 0.2s; }
+.q-btn.active { background: #FFF; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* 财务指标卡片 */
+.metric-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 32px; }
+.metric-card { background: #FFF; border-radius: var(--radius-card); padding: 24px; border: 1px solid rgba(235, 235, 240, 0.8); box-shadow: var(--shadow-soft); transition: transform 0.3s; }
+.metric-card:hover { transform: translateY(-4px); }
+.m-label { font-size: 11px; color: var(--text-sub); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2px; }
+.m-value { font-size: 22px; font-weight: 700; }
+.budget-input { border: 1.5px solid var(--primary); border-radius: 8px; padding: 2px 8px; font-size: 18px; font-weight: 700; color: var(--primary); width: 100%; background: var(--primary-bg); outline: none; }
+
+/* 现金流看板 */
+.progress-card { background: #FFF; border-radius: var(--radius-card); padding: 30px; border: 1px solid var(--border-light); margin-bottom: 32px; box-shadow: var(--shadow-soft); }
+.progress-title { font-size: 16px; font-weight: 700; margin-bottom: 24px; display: flex; justify-content: space-between; }
+.main-bar-bg { height: 12px; background: #F2F2F7; border-radius: 6px; overflow: hidden; margin-bottom: 30px; }
+.main-bar-fill { height: 100%; background: linear-gradient(90deg, #AFA9EC, var(--primary)); transition: width 1s ease; }
+.month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.m-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; color: var(--text-sub); }
+.m-bar-bg { height: 6px; background: #F2F2F7; border-radius: 3px; overflow: hidden; }
+.m-bar-fill { height: 100%; background: #D1D1D6; transition: width 0.8s ease; }
+
+/* 目标矩阵 - 核心升级点 */
+.goal-card { background: #FFF; border-radius: var(--radius-card); padding: 32px; border: 1px solid var(--border-light); margin-bottom: 32px; box-shadow: var(--shadow-soft); }
+.goal-matrix { display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 20px; text-align: left; }
+.goal-header { font-size: 11px; color: var(--text-sub); font-weight: 700; text-transform: uppercase; border-bottom: 1.5px solid var(--border-light); padding-bottom: 12px; margin-bottom: 15px; }
+.goal-month-row { display: contents; }
+.month-tag { font-size: 16px; font-weight: 700; display: flex; align-items: center; color: var(--text-main); height: 100%; }
+
+.tier-box { background: #FBFAFF; border-radius: 18px; padding: 18px; border: 1px solid #F0EFFF; margin-bottom: 15px; }
+.tier-title { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.goal-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.mini-stat { display: flex; flex-direction: column; gap: 5px; }
+.mini-label { font-size: 10px; color: #8E8E93; }
+.mini-ctrl { display: flex; align-items: center; gap: 6px; }
+.pill-input-box { background: #FFF; border: 1px solid var(--primary); border-radius: 12px; padding: 2px 8px; display: inline-flex; align-items: center; }
+.pill-input { width: 30px; border: none; font-size: 12px; font-weight: 700; color: var(--primary); text-align: center; outline: none; }
+.mini-actual { font-size: 12px; font-weight: 600; color: #1D1D1F; }
+.mini-progress-bg { height: 4px; background: #E5E5EA; border-radius: 2px; width: 100%; overflow: hidden; margin-top: 4px; }
+.mini-progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.6s; }
+
+/* 医生管理录入与筛选 */
+.section-card { background: #FFF; border-radius: 28px; padding: 35px; border: 1px solid var(--border-light); margin-bottom: 32px; box-shadow: var(--shadow-soft); }
+.tier-hint { background: var(--primary-bg); border-radius: 14px; padding: 14px 22px; margin-bottom: 24px; display: flex; gap: 28px; font-size: 12px; color: #3C3489; align-items: center; border: 1px solid #DEDAFB; }
+.t-tag { background: #FFF; padding: 2px 10px; border-radius: 6px; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.06); margin-right: 6px; }
+
+.form-container { border: 1px dashed #D1D1D6; border-radius: 20px; padding: 30px; background: #FAFAFB; margin-bottom: 28px; }
+.form-row { display: grid; gap: 16px; margin-bottom: 22px; }
+.row-1 { grid-template-columns: repeat(7, 1fr); }
+.row-2 { grid-template-columns: 1.2fr 1.2fr 1fr auto; align-items: flex-end; }
+.field label { display: block; font-size: 11px; color: var(--text-sub); margin-bottom: 8px; font-weight: 700; }
+.field input, .field select { width: 100%; height: 42px; padding: 0 18px; border: 1px solid #D1D1D6; border-radius: 21px; font-size: 14px; transition: 0.2s; background: #FFF; outline: none; }
+.field input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(127,119,221,0.1); }
+
+.btn-main { height: 44px; background: var(--primary); color: #FFF; border: none; padding: 0 40px; border-radius: 22px; cursor: pointer; font-size: 14px; font-weight: 700; transition: all 0.3s; }
+.btn-main:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(127,119,221,0.3); }
+
+/* 筛选器 */
+.filter-bar { background: transparent; margin-bottom: 28px; display: flex; align-items: center; gap: 12px; }
+.search-pill { position: relative; flex: 1; max-width: 320px; }
+.search-pill svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #999; }
+.search-pill input { width: 100%; height: 42px; padding: 0 20px 0 46px; background: var(--bg-input); border: 1.5px solid transparent; border-radius: 21px; font-size: 14px; transition: all 0.3s; }
+.search-pill input:focus { background: #FFF; border-color: var(--primary); }
+.select-pill { height: 42px; padding: 0 18px; background: var(--bg-input); border: 1.5px solid transparent; border-radius: 21px; font-size: 13px; color: #48484A; cursor: pointer; min-width: 150px; }
+
+.filter-summary { margin-left: auto; font-size: 13px; color: var(--text-sub); background: #FFF; padding: 10px 20px; border-radius: 21px; border: 1px solid var(--border-light); }
+.filter-summary b { color: var(--primary); font-weight: 700; }
+
+/* 标签与表格 */
+.tabs { display: flex; gap: 45px; margin-bottom: 28px; padding: 0 10px; border-bottom: 1.5px solid #F2F2F7; }
+.tab-item { padding: 15px 0; cursor: pointer; color: var(--text-sub); font-size: 16px; font-weight: 600; border-bottom: 3px solid transparent; transition: 0.3s; }
+.tab-item.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.doc-table { width: 100%; border-collapse: collapse; }
+.doc-table th { padding: 18px 12px; font-size: 11px; color: var(--text-sub); text-align: left; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border-light); }
+.doc-table td { padding: 22px 12px; border-bottom: 1px solid #F2F2F7; font-size: 14px; transition: background 0.2s; }
+.doc-table tr:hover td { background: #FAFAFF; }
+
+.status-badge { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+.sc-chat { background: #EBF5FF; color: #007AFF; }
+.sc-prog { background: #FFF9E6; color: #FF9500; }
+.sc-done { background: #EAF9F2; color: #34C759; }
+
+.action { color: var(--primary); cursor: pointer; font-weight: 700; font-size: 13px; margin-right: 20px; text-decoration: none; }
+.action.del { color: #FF3B30; }
+.data-input { width: 100%; height: 36px; border: 1px solid #E5E5EA; border-radius: 18px; padding: 0 15px; font-size: 13px; background: #FFF; outline: none; }
+</style>
+</head>
+<body>
+
+<div class="page">
+    <header>
+        <h1>纳瑞维医生合作看板</h1>
+        <div class="q-switcher">
+            <button class="q-btn" onclick="setQuarter(1)">Q1</button>
+            <button class="q-btn active" onclick="setQuarter(2)">Q2</button>
+            <button class="q-btn" onclick="setQuarter(3)">Q3</button>
+            <button class="q-btn" onclick="setQuarter(4)">Q4</button>
+        </div>
+    </header>
+
+    <div id="metrics-bar" class="metric-grid"></div>
+
+    <div class="progress-card">
+        <div class="progress-title"><span>Q2 预算总消耗 (现金流实付)</span><span id="main-pct" style="color:var(--primary)">0%</span></div>
+        <div class="main-bar-bg"><div id="main-bar" class="main-bar-fill" style="width:0%"></div></div>
+        <div class="month-grid" id="month-bars"></div>
+    </div>
+
+    <div class="goal-card">
+        <div style="font-size:17px; font-weight:700; margin-bottom:24px;">各层级月度目标对齐矩阵</div>
+        <div class="goal-matrix">
+            <div class="goal-header">月份</div>
+            <div class="goal-header">头部专家 (目标/实际)</div>
+            <div class="goal-header">腰部医生 (目标/实际)</div>
+            <div class="goal-header">铺量医生 (目标/实际)</div>
+            
+            <div id="goal-rows" style="display: contents;"></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="tabs">
+            <div class="tab-item active" onclick="switchView('manage')">医生管理 (执行)</div>
+            <div class="tab-item" onclick="switchView('mcn')">MCN 资源库</div>
+            <div class="tab-item" onclick="switchView('data')">数据复盘 (投后)</div>
+        </div>
+
+        <div id="view-manage">
+            <div class="tier-hint">
+                <span>💡 分层判定：</span>
+                <span><span class="t-tag">头部</span> > 50万</span>
+                <span><span class="t-tag">腰部</span> 5-50万</span>
+                <span><span class="t-tag">铺量</span> < 5万</span>
+            </div>
+
+            <div class="form-container">
+                <div class="form-row row-1">
+                    <div class="field"><label>医生姓名</label><input id="d-name"></div>
+                    <div class="field"><label>科室</label><input list="dept-list" id="d-dept"><datalist id="dept-list"></datalist></div>
+                    <div class="field"><label>渠道</label><select id="d-source" onchange="toggleMcn()"><option>私人合作</option><option>MCN合作</option></select></div>
+                    <div class="field"><label>层级</label><select id="d-tier"><option>铺量</option><option>腰部</option><option>头部</option></select></div>
+                    <div class="field"><label>视频条数</label><input id="d-vids" type="number" value="2"></div>
+                    <div class="field"><label>月份</label><select id="d-month"></select></div>
+                    <div class="field"><label>合同额</label><input id="d-cost" type="number"></div>
+                </div>
+                <div class="form-row row-2">
+                    <div class="field"><label>已付预付款</label><input id="d-pre" type="number"></div>
+                    <div class="field"><label>状态</label><select id="d-status"><option>洽谈中</option><option>进行中</option><option>已完成</option></select></div>
+                    <div id="mcn-box" style="display:none;"><label>MCN 机构</label><input id="d-mcnName" style="width:260px"></div>
+                    <div style="text-align: right;">
+                        <span id="edit-ctrl" style="display:none;"><button class="btn-main" style="background:#86868B;margin-right:10px" onclick="cancelEdit()">取消</button></span>
+                        <button class="btn-main" id="sub-btn" onclick="handleDoc()">录入合作</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <div class="search-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input type="text" id="f-name" placeholder="快速定位医生姓名..." oninput="render()">
+                </div>
+                <select id="f-dept" class="select-pill" onchange="render()"><option value="all">所有科室</option></select>
+                <select id="f-mcn" class="select-pill" onchange="render()"><option value="all">所有渠道</option></select>
+                <div class="filter-summary" id="exec-sum"></div>
+            </div>
+
+            <table class="doc-table">
+                <thead><tr><th>月份/医生/科室</th><th>渠道/机构</th><th>层级/视频</th><th>状态</th><th>合同额</th><th>支付状况</th><th>操作</th></tr></thead>
+                <tbody id="list-docs"></tbody>
+            </table>
+        </div>
+
+        <div id="view-mcn" style="display:none;">
+            <div class="form-container">
+                <div style="display:grid; grid-template-columns: 1.2fr 1fr 1.5fr 3fr auto; gap:16px; align-items: flex-end;">
+                    <div class="field"><label>机构名</label><input id="m-name"></div>
+                    <div class="field"><label>对接人</label><input id="m-contact"></div>
+                    <div class="field"><label>阶段</label><select id="m-stage"><option>初步接触</option><option>报价中</option><option>框架签署</option></select></div>
+                    <div class="field"><label>备注</label><input id="m-notes"></div>
+                    <button class="btn-main" onclick="addMcn()">录入</button>
+                </div>
+            </div>
+            <table class="doc-table"><thead><tr><th>机构</th><th>对接人</th><th>阶段</th><th>备注</th><th>操作</th></tr></thead><tbody id="list-mcn"></tbody></table>
+        </div>
+
+        <div id="view-data" style="display:none;">
+             <div class="filter-bar">
+                <div class="search-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input type="text" id="fd-name" placeholder="检索复盘数据..." oninput="renderData()">
+                </div>
+            </div>
+            <table class="doc-table"><thead><tr><th style="width:140px">医生/科室</th><th>视频标题</th><th style="width:110px">平台</th><th style="width:100px">播放</th><th style="width:100px">点赞</th><th style="width:110px">成本</th><th>操作</th></tr></thead><tbody id="list-data"></tbody></table>
+        </div>
+    </div>
+</div>
+
+<script>
+let state = {
+    curQ: 2, editId: null,
+    budget: { 1: 200000, 2: 200000, 3: 200000, 4: 200000 },
+    // 精细化目标结构：每个季度每个月都有三个层级的医生位和视频数目标
+    targets: {}, 
+    doctors: [], mcns: [], videoLogs: {},
+    depts: ['神经内科','神经外科','妇产科','儿科','生殖科','疼痛科','心理科','康复科']
+};
+
+function init() {
+    const saved = localStorage.getItem('narui_peak_v50');
+    if(saved) state = JSON.parse(saved);
+    // 初始化目标数据结构
+    for(let q=1; q<=4; q++) {
+        if(!state.targets[q]) state.targets[q] = {};
+        for(let m=(q-1)*3+1; m<=q*3; m++) {
+            if(!state.targets[q][m]) state.targets[q][m] = {
+                h_d: 1, h_v: 2,  // 头部医/视
+                w_d: 2, w_v: 6,  // 腰部医/视
+                s_d: 1, s_v: 4   // 铺量医/视
+            };
+        }
+    }
+    render();
+}
+
+function save() { localStorage.setItem('narui_peak_v50', JSON.stringify(state)); }
+
+function handleDoc() {
+    const m = parseInt(document.getElementById('d-month').value);
+    const vCount = parseInt(document.getElementById('d-vids').value) || 0;
+    const dept = document.getElementById('d-dept').value;
+    if(dept && !state.depts.includes(dept)) state.depts.push(dept);
+    const data = {
+        name: document.getElementById('d-name').value || '未命名', dept,
+        source: document.getElementById('d-source').value,
+        mcnName: (document.getElementById('d-source').value === 'MCN合作') ? (document.getElementById('d-mcnName').value || '未知机构') : '私人直邀',
+        tier: document.getElementById('d-tier').value, vids: vCount, month: m, quarter: Math.ceil(m/3),
+        cost: parseInt(document.getElementById('d-cost').value) || 0, pre: parseInt(document.getElementById('d-pre').value) || 0,
+        status: document.getElementById('d-status').value
+    };
+    if(state.editId) {
+        const i = state.doctors.findIndex(d => d.id === state.editId);
+        state.doctors[i] = { ...state.doctors[i], ...data };
+        syncLogs(state.editId, vCount);
+        state.editId = null;
+    } else {
+        const id = Date.now(); state.doctors.push({ id, ...data }); syncLogs(id, vCount);
+    }
+    save(); resetForm(); render();
+}
+
+function render() {
+    const qDocs = state.doctors.filter(d => d.quarter === state.curQ);
+    const qBudget = state.budget[state.curQ];
+    const totalP = qDocs.reduce((s,d)=>s+d.pre, 0);
+    const totalC = qDocs.reduce((s,d)=>s+d.cost, 0);
+    const pct = Math.round((totalP/qBudget)*100) || 0;
+
+    // 指标卡片
+    document.getElementById('metrics-bar').innerHTML = `
+        <div class="metric-card"><div class="m-label">Q${state.curQ} 总预算</div><div class="m-value"><input type="number" class="budget-input" value="${qBudget}" onchange="state.budget[state.curQ]=parseInt(this.value);save();render();"></div></div>
+        <div class="metric-card"><div class="m-label">合同总额</div><div class="m-value">¥${totalC.toLocaleString()}</div></div>
+        <div class="metric-card"><div class="m-label">现金已付</div><div class="m-value" style="color:var(--primary)">¥${totalP.toLocaleString()}</div></div>
+        <div class="metric-card"><div class="m-label">待付尾款</div><div class="m-value" style="color:#FF9500">¥${(totalC-totalP).toLocaleString()}</div></div>
+        <div class="metric-card"><div class="m-label">合作条数</div><div class="m-value">${qDocs.reduce((s,d)=>s+d.vids,0)} 条</div></div>
+        <div class="metric-card"><div class="m-label">预算结余</div><div class="m-value">¥${(qBudget-totalC).toLocaleString()}</div></div>`;
+
+    document.getElementById('main-bar').style.width = Math.min(100, pct) + '%';
+    document.getElementById('main-pct').innerText = pct + '%';
+
+    let mH = "";
+    for(let m=(state.curQ-1)*3+1; m<=state.curQ*3; m++){
+        const mp = qDocs.filter(d=>d.month===m).reduce((s,d)=>s+d.pre,0);
+        mH += `<div class="month-item"><div class="m-bar-label"><span>${m}月实付</span><span>¥${mp.toLocaleString()}</span></div><div class="m-bar-bg"><div class="m-bar-fill" style="width:${Math.min(100, (mp/(qBudget/3))*100)}%"></div></div></div>`;
+    }
+    document.getElementById('month-bars').innerHTML = mH;
+
+    // 渲染精细化目标矩阵
+    let goalHtml = "";
+    for(let m=(state.curQ-1)*3+1; m<=state.curQ*3; m++){
+        const dInM = qDocs.filter(d=>d.month===m);
+        const t = state.targets[state.curQ][m];
+        
+        // 计算各层级实际
+        const act = {
+            h_d: dInM.filter(d=>d.tier==='头部').length,
+            h_v: dInM.filter(d=>d.tier==='头部').reduce((s,d)=>s+d.vids,0),
+            w_d: dInM.filter(d=>d.tier==='腰部').length,
+            w_v: dInM.filter(d=>d.tier==='腰部').reduce((s,d)=>s+d.vids,0),
+            s_d: dInM.filter(d=>d.tier==='铺量').length,
+            s_v: dInM.filter(d=>d.tier==='铺量').reduce((s,d)=>s+d.vids,0)
+        };
+
+        const renderTier = (label, targetD, actD, targetV, actV, keyD, keyV) => `
+            <div class="tier-box">
+                <div class="tier-title"><span>${label}</span></div>
+                <div class="goal-metrics">
+                    <div class="mini-stat">
+                        <div class="mini-label">医生合作位</div>
+                        <div class="mini-ctrl">
+                            <div class="pill-input-box"><input class="pill-input" value="${targetD}" onchange="updateGoal(${m},'${keyD}',this.value)">位</div>
+                            <span class="mini-actual">/ ${actD}位</span>
+                        </div>
+                        <div class="mini-progress-bg"><div class="mini-progress-fill" style="width:${Math.min(100, (actD/targetD)*100)}%"></div></div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-label">视频总条数</div>
+                        <div class="mini-ctrl">
+                            <div class="pill-input-box"><input class="pill-input" value="${targetV}" onchange="updateGoal(${m},'${keyV}',this.value)">条</div>
+                            <span class="mini-actual">/ ${actV}条</span>
+                        </div>
+                        <div class="mini-progress-bg"><div class="mini-progress-fill" style="width:${Math.min(100, (actV/targetV)*100)}%"></div></div>
+                    </div>
+                </div>
+            </div>`;
+
+        goalHtml += `
+            <div class="goal-month-row">
+                <div class="month-tag">${m}月周期</div>
+                ${renderTier('👑 头部专家', t.h_d, act.h_d, t.h_v, act.h_v, 'h_d', 'h_v')}
+                ${renderTier('🥈 腰部核心', t.w_d, act.w_d, t.w_v, act.w_v, 'w_d', 'w_v')}
+                ${renderTier('🥉 铺量医生', t.s_d, act.s_d, t.s_v, act.s_v, 's_d', 's_v')}
+            </div>`;
+    }
+    document.getElementById('goal-rows').innerHTML = goalHtml;
+
+    // 筛选与列表
+    const fN = document.getElementById('f-name').value.toLowerCase();
+    const fD = document.getElementById('f-dept').value;
+    const fM = document.getElementById('f-mcn').value;
+    const filtered = qDocs.filter(d => (fN===''||d.name.toLowerCase().includes(fN)) && (fD==='all'||d.dept===fD) && (fM==='all'||d.mcnName===fM));
+
+    document.getElementById('f-dept').innerHTML = '<option value="all">所有科室</option>' + state.depts.map(d=>`<option value="${d}">${d}</option>`).join('');
+    const mcns = [...new Set(qDocs.map(d=>d.mcnName))];
+    document.getElementById('f-mcn').innerHTML = '<option value="all">所有渠道</option>' + mcns.map(m=>`<option value="${m}">${m}</option>`).join('');
+    document.getElementById('exec-sum').innerHTML = `检索：<b>${filtered.length}</b> 位医生 · <b>${filtered.reduce((s,d)=>s+d.vids,0)}</b> 条视频`;
+
+    document.getElementById('d-month').innerHTML = "";
+    for(let m=(state.curQ-1)*3+1; m<=state.curQ*3; m++) document.getElementById('d-month').innerHTML += `<option value="${m}">${m}月</option>`;
+    document.getElementById('dept-list').innerHTML = state.depts.map(d => `<option value="${d}">`).join('');
+
+    document.getElementById('list-docs').innerHTML = filtered.map(d => `
+        <tr><td><b style="font-size:15px">${d.name}</b><br><small style="color:var(--text-sub)">${d.month}月 | ${d.dept}</small></td>
+            <td><small style="color:#BBB">${d.source}</small><br><b>${d.mcnName}</b></td>
+            <td>${d.tier} / ${d.vids}条</td>
+            <td><span class="status-badge ${d.status==='洽谈中'?'sc-chat':d.status==='进行中'?'sc-prog':'sc-done'}">${d.status}</span></td>
+            <td style="font-weight:700">¥${d.cost.toLocaleString()}</td>
+            <td><small>实付:¥${d.pre.toLocaleString()}</small><br><small style="color:#FF9500">余款:¥${(d.cost-d.pre).toLocaleString()}</small></td>
+            <td><a class="action" onclick="startEdit(${d.id})">编辑</a><a class="action del" onclick="if(confirm('删？')){state.doctors=state.doctors.filter(x=>x.id!==${d.id});save();render();}">删除</a></td></tr>`).join('');
+}
+
+function updateGoal(m, key, val) {
+    state.targets[state.curQ][m][key] = parseInt(val) || 0;
+    save(); render();
+}
+
+function startEdit(id) {
+    const d = state.doctors.find(x => x.id === id); state.editId = id;
+    document.getElementById('d-name').value = d.name; document.getElementById('d-dept').value = d.dept;
+    document.getElementById('d-source').value = d.source; toggleMcn();
+    if(d.source === 'MCN合作') document.getElementById('d-mcnName').value = d.mcnName;
+    document.getElementById('d-tier').value = d.tier; document.getElementById('d-vids').value = d.vids;
+    document.getElementById('d-month').value = d.month; document.getElementById('d-cost').value = d.cost;
+    document.getElementById('d-pre').value = d.pre; document.getElementById('d-status').value = d.status;
+    document.getElementById('sub-btn').innerText = "保存修改"; document.getElementById('edit-ctrl').style.display = "inline";
+    window.scrollTo({ top: 350, behavior: 'smooth' });
+}
+
+function toggleMcn() { document.getElementById('mcn-box').style.display = (document.getElementById('d-source').value === 'MCN合作' ? 'block' : 'none'); }
+function cancelEdit() { state.editId = null; resetForm(); render(); }
+function resetForm() { document.getElementById('d-name').value = ""; document.getElementById('d-cost').value = ""; document.getElementById('d-pre').value = ""; document.getElementById('sub-btn').innerText = "录入合作"; document.getElementById('edit-ctrl').style.display = "none"; document.getElementById('mcn-box').style.display = "none"; }
+function setQuarter(q) { state.curQ = q; document.querySelectorAll('.q-btn').forEach((b,i)=>b.classList.toggle('active', i+1===q)); render(); }
+function switchView(v) { ['view-manage', 'view-mcn', 'view-data'].forEach(id => document.getElementById(id).style.display=(id==='view-'+v)?'block':'none'); document.querySelectorAll('.tab-item').forEach(t=>t.classList.toggle('active', t.innerText.includes(v==='manage'?'医生':v==='mcn'?'MCN':'数据'))); if(v==='data')renderData(); if(v==='mcn')renderMcn(); }
+
+function syncLogs(id, n) {
+    if(!state.videoLogs[id]) state.videoLogs[id] = [];
+    while(state.videoLogs[id].length < n) state.videoLogs[id].push({title:'', platform:'', views:0, likes:0});
+    if(state.videoLogs[id].length > n) state.videoLogs[id] = state.videoLogs[id].slice(0, n);
+}
+
+function renderData() {
+    const qDocs = state.doctors.filter(d => d.quarter === state.curQ);
+    const fN = document.getElementById('fd-name').value.toLowerCase();
+    const filtered = qDocs.filter(d => (fN===''||d.name.toLowerCase().includes(fN)));
+    let html = ""; filtered.forEach(d => {
+        const logs = state.videoLogs[d.id] || [];
+        logs.forEach((log, i) => {
+            html += `<tr><td><b>${i===0?d.name:''}</b><br><small>${i===0?d.dept:''}</small></td>
+                     <td><input class="data-input" value="${log.title}" onchange="state.videoLogs[${d.id}][${i}].title=this.value;save();"></td>
+                     <td><input class="data-input" value="${log.platform}" onchange="state.videoLogs[${d.id}][${i}].platform=this.value;save();"></td>
+                     <td><input type="number" class="data-input" style="width:90px" value="${log.views}" onchange="state.videoLogs[${d.id}][${i}].views=parseInt(this.value);save();renderData();"></td>
+                     <td><input type="number" class="data-input" style="width:80px" value="${log.likes}" onchange="state.videoLogs[${d.id}][${i}].likes=parseInt(this.value);save();renderData();"></td>
+                     <td style="color:#666;font-weight:600">¥${d.vids>0?Math.round(d.cost/d.vids).toLocaleString():0}</td>
+                     <td><a class="action del" onclick="if(confirm('重置？')){state.videoLogs[${d.id}][${i}]={title:'',platform:'',views:0,likes:0};save();renderData();}">清空</a></td></tr>`;
+        });
+    });
+    document.getElementById('list-data').innerHTML = html;
+}
+
+function addMcn() { state.mcns.push({id:Date.now(), name:document.getElementById('m-name').value, contact:document.getElementById('m-contact').value, stage:document.getElementById('m-stage').value, notes:document.getElementById('m-notes').value}); save(); renderMcn(); }
+function renderMcn() { document.getElementById('list-mcn').innerHTML = state.mcns.map(m=>`<tr><td><b>${m.name}</b></td><td>${m.contact}</td><td><span class="status-badge sc-prog">${m.stage}</span></td><td>${m.notes}</td><td><a class="action del" onclick="state.mcns=state.mcns.filter(x=>x.id!==${m.id});save();renderMcn();">删除</a></td></tr>`).join(''); }
+
+init();
+</script>
+</body>
+</html>
